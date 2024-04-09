@@ -24,6 +24,14 @@ const storySchema = new mongoose.Schema({
             ref: 'Comment',
         }
     ],
+    upvotes: {
+        type: Number,
+        default: 0,
+    },
+    downvotes: {
+        type: Number,
+        default: 0,
+    },
 });
 
 const Story = mongoose.model('Story', storySchema);

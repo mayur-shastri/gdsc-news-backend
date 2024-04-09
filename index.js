@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./Routes/Authentication/auth');
+const getUserDataRoute = require('./Routes/User/getUserData');
 
 // connecting to mongoDB
 mongoose.connect(process.env.MONGODB_URL)
@@ -18,6 +19,7 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use('/', authRoutes);
+app.use('/', getUserDataRoute);
 
 app.get('/', (req,res)=>{
     res.send("Hello from the homepage");

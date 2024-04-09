@@ -5,7 +5,7 @@ const commentSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
-    comment: {
+    commentText: {
         type: String,
         required: true,
     },
@@ -13,6 +13,20 @@ const commentSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    upvotes: {
+        type: Number,
+        default: 0,
+    },
+    downvotes: {
+        type: Number,
+        default: 0,
+    },
+    comments: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Comment',
+        }
+    ],
 });
 
 const Comment = mongoose.model('Comment', commentSchema);

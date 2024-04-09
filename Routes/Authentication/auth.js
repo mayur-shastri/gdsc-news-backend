@@ -1,12 +1,19 @@
 const express = require('express');
 const router = express.Router();
 const catchAsync = require('../../catchAsync');
-const { registerUser, userLogin } = require('../../Controllers/auth');
+const { registerReader, readerLogin, registerAuthor, authorLogin } = require('../../Controllers/auth');
+const { isAuthor, isReader } = require('../../Middleware/authorization');
 
-router.route('/register')
-    .post(catchAsync(registerUser));
+router.route('/reader/register')
+    .post(catchAsync(registerReader));
 
-router.route('/login')
-    .post(catchAsync(userLogin));
+router.route('/reader/login')
+    .post(isReader,catchAsync(readerLogin));
+
+router.route('/author/register')
+    .post(catchAsync(registerAuthor));
+
+router.route('/author/login')
+    .post(isAuthor,catchAsync(authorLogin));
 
 module.exports = router;
