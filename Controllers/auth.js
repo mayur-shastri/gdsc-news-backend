@@ -40,6 +40,9 @@ const readerLogin = async (req,res)=>{
     }
 
     const user = await User.findOne({userName});
+    if(user.role !== 'reader'){
+        return res.status(401).send({message: "You are not a reader.", success: false});
+    }
     const userObject  = user.toObject();
     delete userObject.password;
     
@@ -70,7 +73,7 @@ const registerAuthor = async (req,res)=>{
     }
 
     const hashedPassword = bcrypt.hashSync(password, 10);
-    const token = jwt.sign({userName, role: 'reader', isVerified: false,}, process.env.JWT_SECRET);
+    const token = jwt.sign({userName, role: 'author', isVerified: false,}, process.env.JWT_SECRET);
 
     res.cookie('token', token, { httpOnly: true, secure: true, maxAge: 1000*60*60*24*7 });
     const user = new User({
@@ -95,6 +98,9 @@ const authorLogin = async (req,res)=>{
     }
 
     const user = await User.findOne({userName});
+    if(user.role !== 'author'){
+        return res.status(401).send({message: "You are not an author.", success: false});
+    }
     const userObject  = user.toObject();
     delete userObject.password;
     

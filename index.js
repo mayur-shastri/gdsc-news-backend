@@ -4,6 +4,8 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./Routes/Authentication/auth');
 const getUserDataRoute = require('./Routes/User/getUserData');
+const commentRoutes = require('./Routes/Comments/comments');
+const storyRoutes = require('./Routes/Story/story');
 
 // connecting to mongoDB
 mongoose.connect(process.env.MONGODB_URL)
@@ -20,6 +22,8 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/', authRoutes);
 app.use('/', getUserDataRoute);
+app.use('/', commentRoutes);
+app.use('/', storyRoutes);
 
 app.get('/', (req,res)=>{
     res.send("Hello from the homepage");

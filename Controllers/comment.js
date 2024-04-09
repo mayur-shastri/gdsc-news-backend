@@ -57,17 +57,21 @@ const reactToComment = async (req,res)=>{
 const commentOnComment = async (req,res)=>{
     const {commentId, commentText, userId} = req.body;
     const parentComment = await Comment.findById(commentId);
+
     if(!parentComment){
         return res.status(404).json({message: 'Comment not found', success: false});
     }
+
     const newComment = new Comment({
         commentText,
         user: userId,
         datePosted: Date.now(),
     });
+
     parentComment.comments.push(newComment);
     await newComment.save();
     await parentComment.save();
+    
     res.status(201).json({message: 'Comment added successfully', success: true});
 }
 

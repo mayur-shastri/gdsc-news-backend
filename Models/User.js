@@ -20,11 +20,21 @@ const userSchema = new mongoose.Schema({
         //default should be false, and must be made true through some verification mechanism
         //set to true for testing purposes
     },
+    profileImageUrl: {
+        type: String,
+        default: null,
+    },
     role: {
         type: String,
         required: true,
         enum: ['reader', 'author'],
     },
+    stories: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Story',
+        }
+    ],
     karma: {
         type: Number,
         required: true,
