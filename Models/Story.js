@@ -18,19 +18,32 @@ const storySchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
-    comments: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Comment',
-        }
-    ],
+    comments: {
+        type: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'Comment',
+            },
+        ],
+        default: [],
+    },
     upvotes: {
-        type: Number,
-        default: 0,
+        type: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+        ],
+        default: [],
     },
     downvotes: {
-        type: Number,
-        default: 0,
+        type: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User',
+            },
+        ],
+        default: [],
     },
 });
 

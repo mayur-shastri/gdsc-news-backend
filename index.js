@@ -3,7 +3,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./Routes/Authentication/auth');
-const getUserDataRoute = require('./Routes/User/getUserData');
+const getUserDataRoute = require('./Routes/User/getSelfData');
+const getUserProfileRoute = require('./Routes/User/viewUserProfile');
 const commentRoutes = require('./Routes/Comments/comments');
 const storyRoutes = require('./Routes/Story/story');
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use('/', authRoutes);
 app.use('/', getUserDataRoute);
+app.use('/', getUserProfileRoute);
 app.use('/', commentRoutes);
 app.use('/', storyRoutes);
 

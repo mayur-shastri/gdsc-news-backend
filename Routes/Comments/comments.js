@@ -11,12 +11,12 @@ router.route('/:story_id/write-comment')
 router.route('/:comment_id/get-comment')
     .get(isLoggedIn, catchAsync(getComment));
 
-// // upvote or downvote
-// router.route('/react-to-comment')
-//     .post(isLoggedIn ,catchAsync(reactToComment));
+// upvote or downvote
+router.route('/:comment_id/react-to-comment')
+    .post(isLoggedIn ,catchAsync(reactToComment));
 
 // // comment on comment 
-// router.route('/comment-on-comment')
+// router.route(':parent_comment_id/comment-on-comment')
 //     .post(isLoggedIn, catchAsync(commentOnComment));
 
 module.exports = router;

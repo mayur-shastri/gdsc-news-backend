@@ -28,8 +28,8 @@ const isReader = async (req,res,next)=>{
 
 const isLoggedIn = async(req,res,next)=>{
     const {userId} = req.body;
-    const token = req.cookies.token;
     try{
+        const token = req.cookies.token;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         if(decoded.userId === userId){
             next();

@@ -31,6 +31,9 @@ const writeComment = async (req,res)=>{
 
 const getComment = async (req,res)=>{
     const {comment_id} = req.params;
+    const token = req.cookies.token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
 
     const comment = await Comment.findById(comment_id)
     .populate({
@@ -50,29 +53,83 @@ const getComment = async (req,res)=>{
         return res.status(404).json({message: 'Comment not found', success: false});
     }
 
-    res.status(200).json({comment, success: true, message: 'Comment fetched successfully'});
+    const isUpvoted = comment.upvotes.includes(userId);
+    const isDownvoted = comment.downvotes.includes(userId);
+
+    const payload = {
+        comment,
+        isUpvoted,
+        isDownvoted,
+        upvoteCount: comment.upvotes.length,
+        downvoteCount: comment.downvotes.length,
+        success: true,
+        message: 'Comment fetched successfully',
+    }
+
+    res.status(200).json(payload);
 }
 
 const reactToComment = async (req,res)=>{
-    const {commentId, reaction} = req.body;
-
-    const comment = await Comment.findById(commentId);
+    const {comment_id} = req.params;
+    const {reaction} = req.body;
+    const token = req.cookies.token;
+    const comment = await Comment.findById(comment_id);
     
     if(!comment){
         return res.status(404).json({message: 'Comment not found', success: false});
     }
 
-    if(reaction === 'upvote'){
-        comment.upvotes += 1;
-    } else if(reaction === 'downvote'){
-        comment.downvotes += 1;
+    console.log(comment);
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+    let isUpvoted = comment.upvotes.includes(userId);
+    let isDownvoted = comment.downvotes.includes(userId);
+
+    if(!isUpvoted && !isDownvoted){
+        if(reaction == 'upvote'){
+            comment.upvotes.push(userId);
+            isUpvoted = true;
+            isDownvoted = false;
+        } else if(reaction == 'downvote'){
+            comment.downvotes.push(userId);
+            isUpvoted = false;
+            isDownvoted = true;
+        }
+    } else if(comment.upvotes.includes(userId) && reaction == 'upvote'){
+        comment.upvotes.pull(userId);
+        isUpvoted = false;
+        isDownvoted = false;
+    } else if(comment.downvotes.includes(userId) && reaction == 'downvote'){
+        comment.downvotes.pull(userId);
+        isUpvoted = false;
+        isDownvoted = false;
+    } else if(comment.upvotes.includes(userId) && reaction == 'downvote'){
+        comment.upvotes.pull(userId);
+        comment.downvotes.push(userId);
+        isUpvoted = false;
+        isDownvoted = true;
+    } else if(comment.downvotes.includes(userId) && reaction == 'upvote'){
+        comment.downvotes.pull(userId);
+        comment.upvotes.push(userId);
+        isUpvoted = true;
+        isDownvoted = false;
     } else{
         return res.status(400).json({message: 'Invalid reaction', success: false});
     }
 
     await comment.save();
 
-    res.status(200).json({message: 'Reaction added successfully', success: true});
+    const payload = {
+        isUpvoted,
+        isDownvoted,
+        upvoteCount: comment.upvotes.length,
+        downvoteCount: comment.downvotes.length,
+        success: true,
+        message: 'Comment fetched successfully',
+    }
+
+    res.status(200).json(payload);
 
 }
 
