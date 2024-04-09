@@ -13,6 +13,10 @@ router.route('/write-story')
 router.route('/:story_id/get-story')
     .get(catchAsync(getStoryById));
 
+// router.route('/:story_id/react')
+//     .get(isLoggedIn, catchAsync(reactToStory));
+
+// // search stories by keywords
 // router.route('/:title/get-stories')
 //     .get(catchAsync(getStoriesByTitle));
 
@@ -24,7 +28,5 @@ router.route('/:story_id/get-story')
 // router.route('/:best-stories')
 //     .get(catchAsync(getBestStories));
 
-// router.route('/:story_id/react')
-//     .get(isLoggedIn, catchAsync(reactToStory));
 
 module.exports = router;

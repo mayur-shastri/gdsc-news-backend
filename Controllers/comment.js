@@ -1,12 +1,19 @@
 const Comment = require("../Models/Comment");
 const Story = require("../Models/Story");
+const jwt = require('jsonwebtoken');
 
 const writeComment = async (req,res)=>{
-    const {commentText, userId} = req.body;
-    
+    const {commentText} = req.body;
+    const {story_id} = req.params;
+    const token = req.cookies.token;
+
     if(!commentText){
         return res.status(400).json({message: 'Comment cannot be without text'});
     }
+    
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const userId = decoded.userId;
 
     const comment = new Comment({
         user: userId,
@@ -15,20 +22,35 @@ const writeComment = async (req,res)=>{
     });
     await comment.save();
 
+    const story = await Story.findById(story_id);
+    story.comments.push(comment._id);
+    await story.save();
+
     res.status(201).json({message: 'Comment added successfully', comment, success: true});
 }
 
-const getComments = async (req,res)=>{
+const getComment = async (req,res)=>{
+    const {comment_id} = req.params;
 
-    const {storyId} = req.params;
+    const comment = await Comment.findById(comment_id)
+    .populate({
+        path: 'user',
+        select: 'userName profileImageUrl',
+    })
+    .populate({
+        path: 'comments',
+        populate: {
+            path: 'user',
+            model: 'User',
+            select: 'userName profileImageUrl',
+        }
+    });
 
-    const story = await Story.findById(storyId).populate('comments');
-    if(!story){
-        return res.status(404).json({message: 'Story not found', success: false});
+    if(!comment){
+        return res.status(404).json({message: 'Comment not found', success: false});
     }
 
-    res.status(200).json({comments: story.comments, success: true, message: "Comments fetched successfully"});
-
+    res.status(200).json({comment, success: true, message: 'Comment fetched successfully'});
 }
 
 const reactToComment = async (req,res)=>{
@@ -77,7 +99,7 @@ const commentOnComment = async (req,res)=>{
 
 module.exports = {
     writeComment,
-    getComments,
+    getComment,
     reactToComment,
     commentOnComment,
 }
