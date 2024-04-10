@@ -26,7 +26,7 @@ router.route('/:title/get-stories')
 //     .get(catchAsync(getBestStories));
 
 // Add story to favourites 
-router.route('/:story_id/add-to-favourites')
-    .get(isLoggedIn, catchAsync(addStoryToFavourites));
+router.route('/story/:story_id/add-to-favourites')
+    .patch(isLoggedIn, catchAsync(addStoryToFavourites));
 
 module.exports = router;

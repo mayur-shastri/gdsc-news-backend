@@ -21,7 +21,7 @@ router.route('/:parent_comment_id/comment-on-comment')
     .post(isLoggedIn, catchAsync(commentOnComment));
 
 // add comment to favourites
-router.route('/:comment_id/add-to-favourites')
-    .get(isLoggedIn, catchAsync(addCommentToFavourites));
+router.route('/comment/:comment_id/add-to-favourites')
+    .patch(isLoggedIn, catchAsync(addCommentToFavourites));
 
 module.exports = router;
