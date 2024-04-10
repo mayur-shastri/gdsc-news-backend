@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const catchAsync = require('../../catchAsync');
-const { writeComment, getComment, reactToComment, commentOnComment } = require('../../Controllers/comment');
+const { writeComment, getComment, reactToComment, commentOnComment, addCommentToFavourites } = require('../../Controllers/comment');
 const { isLoggedIn } = require('../../Middleware/authorization');
 
 router.route('/:story_id/write-comment')
@@ -20,8 +20,8 @@ router.route('/:comment_id/react-to-comment')
 router.route('/:parent_comment_id/comment-on-comment')
     .post(isLoggedIn, catchAsync(commentOnComment));
 
-// // add comment to favourites
-// router.route('/:comment_id/add-to-favourites')
-//     .get(isLoggedIn, catchAsync(addToFavourites));
+// add comment to favourites
+router.route('/:comment_id/add-to-favourites')
+    .get(isLoggedIn, catchAsync(addCommentToFavourites));
 
 module.exports = router;

@@ -156,9 +156,30 @@ const getStoriesByTitle = async (req,res)=>{
     res.status(200).json({stories, success: true, message: 'Stories fetched successfully'});
 }
 
+const addStoryToFavourites = async (req,res)=>{
+    const {story_id} = req.params;
+    const token = req.cookies.token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const user = await User.findById(userId);
+
+    if(user.favouriteStories.includes(story_id)){
+        return res.status(400).json({message: 'Story already in favourites', success: false});
+    }
+
+    user.favouriteStories.push(story_id);
+
+    await user.save();
+
+    res.status(200).json({message: 'Story added to favourites successfully', success: true});
+
+}
+
 module.exports = {
     writeStory,
     getStoryById,
     reactToStory,
     getStoriesByTitle,
+    addStoryToFavourites,
 }

@@ -1,6 +1,7 @@
 const Comment = require("../Models/Comment");
 const Story = require("../Models/Story");
 const jwt = require('jsonwebtoken');
+const User = require("../Models/User");
 
 const writeComment = async (req,res)=>{
     const {commentText} = req.body;
@@ -160,10 +161,35 @@ const commentOnComment = async (req,res)=>{
     parentComment.comments.push(comment._id);
     await parentComment.save();
 
+    const user = await User.findById(userId);
+    user.karma += 1; // karma for commenting on a comment
+    await user.save();
+
     res.status(201).json({message: 'Comment added successfully',
         parentComment,
         comment,
         success: true});
+}
+
+const addCommentToFavourites = async (req,res)=>{
+    const {comment_id} = req.params;
+    const token = req.cookies.token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const user = await User.findById(userId);
+    if(!user){
+        return res.status(404).json({message: 'User not found', success: false});
+    }
+
+    if(user.favouriteComments.includes(comment_id)){
+        return res.status(400).json({message: 'Comment already in favourites', success: false});
+    }
+
+    user.favouriteComments.push(comment_id);
+    await user.save();
+
+    res.status(200).json({message: 'Comment added to favourites successfully', success: true});
 }
 
 module.exports = {
@@ -171,4 +197,5 @@ module.exports = {
     getComment,
     reactToComment,
     commentOnComment,
+    addCommentToFavourites
 }

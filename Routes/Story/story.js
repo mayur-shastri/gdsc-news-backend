@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const catchAsync = require('../../catchAsync');
 const { isAuthor, isLoggedIn } = require('../../Middleware/authorization');
-const { writeStory, getStoryById, reactToStory, getStoriesByTitle } = require('../../Controllers/story');
+const { writeStory, getStoryById, reactToStory, getStoriesByTitle, addStoryToFavourites } = require('../../Controllers/story');
 
 router.route('/write-story')
     .post(isAuthor, catchAsync(writeStory));
@@ -25,8 +25,8 @@ router.route('/:title/get-stories')
 // router.route('/:best-stories')
 //     .get(catchAsync(getBestStories));
 
-// // Add story to favourites 
-// router.route('/:story_id/add-to-favourites')
-//     .get(isLoggedIn, catchAsync(addToFavourites));
+// Add story to favourites 
+router.route('/:story_id/add-to-favourites')
+    .get(isLoggedIn, catchAsync(addStoryToFavourites));
 
 module.exports = router;
