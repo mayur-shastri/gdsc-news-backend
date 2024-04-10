@@ -96,20 +96,20 @@ const reactToComment = async (req,res)=>{
             isUpvoted = false;
             isDownvoted = true;
         }
-    } else if(comment.upvotes.includes(userId) && reaction == 'upvote'){
+    } else if(isUpvoted && reaction == 'upvote'){
         comment.upvotes.pull(userId);
         isUpvoted = false;
         isDownvoted = false;
-    } else if(comment.downvotes.includes(userId) && reaction == 'downvote'){
+    } else if(isDownvoted && reaction == 'downvote'){
         comment.downvotes.pull(userId);
         isUpvoted = false;
         isDownvoted = false;
-    } else if(comment.upvotes.includes(userId) && reaction == 'downvote'){
+    } else if(isUpvoted && reaction == 'downvote'){
         comment.upvotes.pull(userId);
         comment.downvotes.push(userId);
         isUpvoted = false;
         isDownvoted = true;
-    } else if(comment.downvotes.includes(userId) && reaction == 'upvote'){
+    } else if(isDownvoted && reaction == 'upvote'){
         comment.downvotes.pull(userId);
         comment.upvotes.push(userId);
         isUpvoted = true;
@@ -134,24 +134,36 @@ const reactToComment = async (req,res)=>{
 }
 
 const commentOnComment = async (req,res)=>{
-    const {commentId, commentText, userId} = req.body;
-    const parentComment = await Comment.findById(commentId);
-
-    if(!parentComment){
-        return res.status(404).json({message: 'Comment not found', success: false});
+    const {parent_comment_id} = req.params;
+    const {commentText} = req.body;
+    
+    if(!commentText){
+        return res.status(400).json({message: 'Comment cannot be without text'});
     }
 
-    const newComment = new Comment({
-        commentText,
+    const parentComment = await Comment.findById(parent_comment_id);
+    if(!parentComment){
+        return res.status(404).json({message: 'Parent comment not found', success: false});
+    }
+
+    const token = req.cookies.token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
+
+    const comment = new Comment({
         user: userId,
+        commentText,
         datePosted: Date.now(),
     });
+    await comment.save();
 
-    parentComment.comments.push(newComment);
-    await newComment.save();
+    parentComment.comments.push(comment._id);
     await parentComment.save();
-    
-    res.status(201).json({message: 'Comment added successfully', success: true});
+
+    res.status(201).json({message: 'Comment added successfully',
+        parentComment,
+        comment,
+        success: true});
 }
 
 module.exports = {

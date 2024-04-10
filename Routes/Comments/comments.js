@@ -7,7 +7,8 @@ const { isLoggedIn } = require('../../Middleware/authorization');
 router.route('/:story_id/write-comment')
     .post(isLoggedIn ,catchAsync(writeComment));
 
-// if a user requests to see a particular comment. Eg- a comment in the favourite comments section
+// if a user requests to see a particular comment. 
+// Eg- a comment in the favourite comments section
 router.route('/:comment_id/get-comment')
     .get(isLoggedIn, catchAsync(getComment));
 
@@ -15,8 +16,12 @@ router.route('/:comment_id/get-comment')
 router.route('/:comment_id/react-to-comment')
     .post(isLoggedIn ,catchAsync(reactToComment));
 
-// // comment on comment 
-// router.route(':parent_comment_id/comment-on-comment')
-//     .post(isLoggedIn, catchAsync(commentOnComment));
+// comment on comment 
+router.route('/:parent_comment_id/comment-on-comment')
+    .post(isLoggedIn, catchAsync(commentOnComment));
+
+// // add comment to favourites
+// router.route('/:comment_id/add-to-favourites')
+//     .get(isLoggedIn, catchAsync(addToFavourites));
 
 module.exports = router;

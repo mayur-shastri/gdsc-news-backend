@@ -39,11 +39,21 @@ const getStoryById = async (req,res)=>{
     })
     .populate({
         path: 'comments',
-        populate: {
-            path: 'user',
-            model: 'User',
-            select: 'userName profileImageUrl',
-        }
+        populate: [
+            {
+                path: 'user',
+                model: 'User',
+                select: 'userName profileImageUrl',
+            },
+            {
+                path: 'comments',
+                populate: {
+                    path: 'user',
+                    model: 'User',
+                    select: 'userName profileImageUrl',
+                },
+            },
+        ],
     });
 
     if(!story){
@@ -93,20 +103,20 @@ const reactToStory = async (req,res)=>{
             isUpvoted = false;
             isDownvoted = true;
         }
-    } else if(story.upvotes.includes(userId) && reaction == 'upvote'){
+    } else if(isUpvoted && reaction == 'upvote'){
         story.upvotes.pull(userId);
         isUpvoted = false;
         isDownvoted = false;
-    } else if(story.downvotes.includes(userId) && reaction == 'downvote'){
+    } else if(isDownvoted && reaction == 'downvote'){
         story.downvotes.pull(userId);
         isUpvoted = false;
         isDownvoted = false;
-    } else if(story.upvotes.includes(userId) && reaction == 'downvote'){
+    } else if(isUpvoted && reaction == 'downvote'){
         story.upvotes.pull(userId);
         story.downvotes.push(userId);
         isUpvoted = false;
         isDownvoted = true;
-    } else if(story.downvotes.includes(userId) && reaction == 'upvote'){
+    } else if(isDownvoted && reaction == 'upvote'){
         story.downvotes.pull(userId);
         story.upvotes.push(userId);
         isUpvoted = true;
@@ -130,8 +140,25 @@ const reactToStory = async (req,res)=>{
 
 }
 
+const getStoriesByTitle = async (req,res)=>{
+    const {title} = req.params;
+
+    const stories = await Story.find({title: { $regex: title, $options: 'i' }})
+    .populate({
+        path: 'author',
+        select: 'userName profileImageUrl',
+    });
+
+    if(!stories){
+        return res.status(404).json({message: 'Stories not found', success: false});
+    }
+
+    res.status(200).json({stories, success: true, message: 'Stories fetched successfully'});
+}
+
 module.exports = {
     writeStory,
     getStoryById,
-    reactToStory
+    reactToStory,
+    getStoriesByTitle,
 }
