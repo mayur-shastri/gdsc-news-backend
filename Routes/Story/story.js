@@ -5,9 +5,11 @@ const { isAuthor, isLoggedIn } = require('../../Middleware/authorization');
 const { writeStory, getStoryById, reactToStory, 
         getStoriesByTitle, addStoryToFavourites } = require('../../Controllers/story');
 const { getTopStories, getBestStories } = require('../../Controllers/topAndBestStories');
+const validateBody = require('../../Middleware/schemaValidation');
+const storySchema = require('../../ValidationSchemas/Story');
 
 router.route('/write-story')
-    .post(isAuthor, catchAsync(writeStory));
+    .post(isAuthor, validateBody(storySchema) , catchAsync(writeStory));
 
 router.route('/:story_id/get-story')
     .get(catchAsync(getStoryById));

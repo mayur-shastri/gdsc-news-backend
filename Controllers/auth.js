@@ -48,7 +48,7 @@ const readerLogin = async (req,res)=>{
     delete userObject.password;
     
     if(user){
-        const matchPassword = bcrypt.compare(password, user.password);
+        const matchPassword = await bcrypt.compare(password, user.password);
         if(matchPassword){
             const token = jwt.sign({userName, userId: user._id, role: 'reader'}, process.env.JWT_SECRET);
             res.cookie('token', token, { httpOnly: true, secure: true, maxAge: 1000*60*60*24*7});
@@ -107,7 +107,7 @@ const authorLogin = async (req,res)=>{
     delete userObject.password;
     
     if(user){
-        const matchPassword = bcrypt.compare(password, user.password);
+        const matchPassword = await bcrypt.compare(password, user.password);
         if(matchPassword){
             const token = jwt.sign({userName, userId: user._id, role: 'author'}, process.env.JWT_SECRET);
             res.cookie('token', token, { httpOnly: true, secure: true, maxAge: 1000*60*60*24*7});

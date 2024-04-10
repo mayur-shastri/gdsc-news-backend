@@ -3,11 +3,13 @@ const router = express.Router();
 const catchAsync = require('../../catchAsync');
 const { writeComment, getComment, reactToComment, getAllComments, commentOnComment, addCommentToFavourites } = require('../../Controllers/comment');
 const { isLoggedIn } = require('../../Middleware/authorization');
+const validateBody = require('../../Middleware/schemaValidation');
+const commentSchema = require('../../ValidationSchemas/Comment');
 
 router.route('/:story_id/write-comment')
-    .post(isLoggedIn ,catchAsync(writeComment));
+    .post(isLoggedIn , validateBody(commentSchema) ,catchAsync(writeComment));
 
-// if a user requests to see a particular comment. 
+// if a user requests to see a particular comment.
 // Eg- a comment in the favourite comments section
 router.route('/:comment_id/get-comment')
     .get(catchAsync(getComment));
@@ -22,7 +24,7 @@ router.route('/:comment_id/react-to-comment')
 
 // comment on comment 
 router.route('/:parent_comment_id/comment-on-comment')
-    .post(isLoggedIn, catchAsync(commentOnComment));
+    .post(isLoggedIn, validateBody(commentSchema), catchAsync(commentOnComment));
 
 // add comment to favourites
 router.route('/comment/:comment_id/add-to-favourites')
