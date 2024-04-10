@@ -20,7 +20,6 @@ const writeStory = async (req,res)=>{
 
     const user = await User.findById(userId);
     user.stories.push(story._id);
-    user.karma += 10; // Post Karma = 10
     await user.save();
 
     res.status(200).json({message: 'Story added successfully', success: true, story});
@@ -93,39 +92,48 @@ const reactToStory = async (req,res)=>{
     let isUpvoted = story.upvotes.includes(userId);
     let isDownvoted = story.downvotes.includes(userId);
 
+    const originalPoster = await User.findById(story.author);
+
     if(!isUpvoted && !isDownvoted){
         if(reaction == 'upvote'){
             story.upvotes.push(userId);
             isUpvoted = true;
             isDownvoted = false;
+            originalPoster.karma += 1;
         } else if(reaction == 'downvote'){
             story.downvotes.push(userId);
             isUpvoted = false;
             isDownvoted = true;
+            originalPoster.karma -= 1;
         }
     } else if(isUpvoted && reaction == 'upvote'){
         story.upvotes.pull(userId);
         isUpvoted = false;
         isDownvoted = false;
+        originalPoster.karma -= 1;
     } else if(isDownvoted && reaction == 'downvote'){
         story.downvotes.pull(userId);
         isUpvoted = false;
         isDownvoted = false;
+        originalPoster.karma += 1;
     } else if(isUpvoted && reaction == 'downvote'){
         story.upvotes.pull(userId);
         story.downvotes.push(userId);
         isUpvoted = false;
         isDownvoted = true;
+        originalPoster.karma -= 2;
     } else if(isDownvoted && reaction == 'upvote'){
         story.downvotes.pull(userId);
         story.upvotes.push(userId);
         isUpvoted = true;
         isDownvoted = false;
+        originalPoster.karma += 2;
     } else{
         return res.status(400).json({message: 'Invalid reaction', success: false});
     }
 
     await story.save();
+    await originalPoster.save();
 
     const payload = {
         isUpvoted,

@@ -87,39 +87,48 @@ const reactToComment = async (req,res)=>{
     let isUpvoted = comment.upvotes.includes(userId);
     let isDownvoted = comment.downvotes.includes(userId);
 
+    const originalPoster = await User.findById(comment.user);
+
     if(!isUpvoted && !isDownvoted){
         if(reaction == 'upvote'){
             comment.upvotes.push(userId);
             isUpvoted = true;
             isDownvoted = false;
+            originalPoster.karma += 1;
         } else if(reaction == 'downvote'){
             comment.downvotes.push(userId);
             isUpvoted = false;
             isDownvoted = true;
+            originalPoster.karma -= 1;
         }
     } else if(isUpvoted && reaction == 'upvote'){
         comment.upvotes.pull(userId);
         isUpvoted = false;
         isDownvoted = false;
+        originalPoster.karma -= 1;
     } else if(isDownvoted && reaction == 'downvote'){
         comment.downvotes.pull(userId);
         isUpvoted = false;
         isDownvoted = false;
+        originalPoster.karma += 1;
     } else if(isUpvoted && reaction == 'downvote'){
         comment.upvotes.pull(userId);
         comment.downvotes.push(userId);
         isUpvoted = false;
         isDownvoted = true;
+        originalPoster.karma -= 2;
     } else if(isDownvoted && reaction == 'upvote'){
         comment.downvotes.pull(userId);
         comment.upvotes.push(userId);
         isUpvoted = true;
         isDownvoted = false;
+        originalPoster.karma += 2;
     } else{
         return res.status(400).json({message: 'Invalid reaction', success: false});
     }
 
     await comment.save();
+    await originalPoster.save();
 
     const payload = {
         isUpvoted,
@@ -162,7 +171,6 @@ const commentOnComment = async (req,res)=>{
     await parentComment.save();
 
     const user = await User.findById(userId);
-    user.karma += 1; // karma for commenting on a comment
     await user.save();
 
     res.status(201).json({message: 'Comment added successfully',
