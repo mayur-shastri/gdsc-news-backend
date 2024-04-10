@@ -3,11 +3,14 @@ const User = require("../Models/User");
 const jwt = require('jsonwebtoken');
 
 const writeStory = async (req,res)=>{
-    const {title, content, userId} = req.body;
+    const {title, content} = req.body;
     
     if(!title || !content){
         return res.status(400).json({message: 'Title and Content are required', success: false});
     }
+    const token = req.cookies.token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.userId;
     
     const story = new Story({
         title,
@@ -17,7 +20,6 @@ const writeStory = async (req,res)=>{
     });
 
     await story.save();
-
     const user = await User.findById(userId);
     user.stories.push(story._id);
     await user.save();

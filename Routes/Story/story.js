@@ -29,7 +29,7 @@ router.route('/top-stories')
 router.route('/best-stories')
     .get(catchAsync(getBestStories));
 
-// Add story to favourites 
+// Add story to favourites
 router.route('/story/:story_id/add-to-favourites')
     .patch(isLoggedIn, catchAsync(addStoryToFavourites));
 

@@ -1,10 +1,9 @@
 const jwt = require('jsonwebtoken');
 
 const isAuthor = async (req,res,next)=>{
-    const {userId} = req.body;
     const token = req.cookies.token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if(decoded.role === 'author' && decoded.userId === userId){
+    if(decoded.role === 'author'){
         next();
     } else if(decoded.role !== 'author'){
         return res.status(401).send({message: "You are not an author", success: false});
@@ -14,10 +13,9 @@ const isAuthor = async (req,res,next)=>{
 }
 
 const isReader = async (req,res,next)=>{
-    const {userId} = req.body;
     const token = req.cookies.token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if(decoded.role === 'reader' && decoded.userId === userId){
+    if(decoded.role === 'reader'){
         next();
     } else if(decoded.role !== 'reader'){
         return res.status(401).send({message: "You are not a reader", success: false});
@@ -27,11 +25,10 @@ const isReader = async (req,res,next)=>{
 }
 
 const isLoggedIn = async(req,res,next)=>{
-    const {userId} = req.body;
     try{
         const token = req.cookies.token;
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        if(decoded.userId === userId){
+        if(decoded){
             next();
         } else{
             res.status(401).send({
