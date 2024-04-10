@@ -45,7 +45,7 @@ app.get('/', (req,res)=>{
 
 app.use((err,req,res,next)=>{
     const {statusCode = 500, message = "Something went wrong"} = err;
-    res.status(statusCode).send(message);
+    res.status(statusCode).send({"message": message, success: false});
 });
 
 const port = process.env.PORT || 3000;

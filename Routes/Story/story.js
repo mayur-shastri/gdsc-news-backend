@@ -18,7 +18,7 @@ router.route('/:story_id/react-to-story')
     .post(isLoggedIn, catchAsync(reactToStory));
 
 // search stories by keywords
-router.route('/:title/get-stories')
+router.route('/get-stories')
     .get(catchAsync(getStoriesByTitle));
 
 // top stories: popular stories of the week

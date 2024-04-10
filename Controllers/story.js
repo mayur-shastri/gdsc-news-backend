@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const writeStory = async (req,res)=>{
     const {title, content, userId} = req.body;
-
+    
     if(!title || !content){
         return res.status(400).json({message: 'Title and Content are required', success: false});
     }
@@ -149,9 +149,14 @@ const reactToStory = async (req,res)=>{
 }
 
 const getStoriesByTitle = async (req,res)=>{
-    const {title} = req.params;
+    const {title} = req.query;
 
-    const stories = await Story.find({title: { $regex: title, $options: 'i' }})
+    // title has comma separated keywords
+    const keywords = title.split(',');
+
+    const regexQueries = keywords.map(keyword => ({ title: { $regex: keyword, $options: 'i' } }));
+
+    const stories = await Story.find({$and: regexQueries})
     .populate({
         path: 'author',
         select: 'userName profileImageUrl',
