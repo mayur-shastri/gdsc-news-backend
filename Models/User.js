@@ -35,6 +35,12 @@ const userSchema = new mongoose.Schema({
             ref: 'Story',
         }
     ],
+    comments: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Comment',
+        }
+    ],
     karma: {
         type: Number,
         required: true,

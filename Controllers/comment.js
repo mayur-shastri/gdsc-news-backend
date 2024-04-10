@@ -23,8 +23,11 @@ const writeComment = async (req,res)=>{
     });
     await comment.save();
 
+    const originalPoster = await User.findById(userId);
+    originalPoster.comments.push(comment._id);
     const story = await Story.findById(story_id);
     story.comments.push(comment._id);
+    await originalPoster.save();
     await story.save();
 
     res.status(201).json({message: 'Comment added successfully', comment, success: true});
@@ -168,9 +171,10 @@ const commentOnComment = async (req,res)=>{
     await comment.save();
 
     parentComment.comments.push(comment._id);
-    await parentComment.save();
-
     const user = await User.findById(userId);
+    user.comments.push(comment._id);
+    
+    await parentComment.save();
     await user.save();
 
     res.status(201).json({message: 'Comment added successfully',
@@ -200,10 +204,31 @@ const addCommentToFavourites = async (req,res)=>{
     res.status(200).json({message: 'Comment added to favourites successfully', success: true});
 }
 
+const getAllComments = async (req,res)=>{
+    const {story_id} = req.params;
+    
+    const story = await Story.findById(story_id).populate({
+        path: 'comments',
+        populate: {
+            path: 'user',
+            model: 'User',
+            select: 'userName profileImageUrl',
+        }
+    });
+    
+    if(!story){
+        return res.status(404).json({message: 'Story not found', success: false});
+    }
+
+    res.status(200).json({comments: story.comments, success: true, message: "Comments fetched successfully"});
+
+}
+
 module.exports = {
     writeComment,
     getComment,
     reactToComment,
     commentOnComment,
-    addCommentToFavourites
+    addCommentToFavourites,
+    getAllComments
 }

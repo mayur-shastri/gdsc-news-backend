@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const catchAsync = require('../../catchAsync');
-const { writeComment, getComment, reactToComment, commentOnComment, addCommentToFavourites } = require('../../Controllers/comment');
+const { writeComment, getComment, reactToComment, getAllComments, commentOnComment, addCommentToFavourites } = require('../../Controllers/comment');
 const { isLoggedIn } = require('../../Middleware/authorization');
 
 router.route('/:story_id/write-comment')
@@ -10,7 +10,11 @@ router.route('/:story_id/write-comment')
 // if a user requests to see a particular comment. 
 // Eg- a comment in the favourite comments section
 router.route('/:comment_id/get-comment')
-    .get(isLoggedIn, catchAsync(getComment));
+    .get(catchAsync(getComment));
+
+// get all primary comments(without the replies) of a story
+router.route('/:story_id/get-comments')
+    .get(catchAsync(getAllComments));
 
 // upvote or downvote
 router.route('/:comment_id/react-to-comment')

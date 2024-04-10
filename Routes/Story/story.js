@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const catchAsync = require('../../catchAsync');
 const { isAuthor, isLoggedIn } = require('../../Middleware/authorization');
-const { writeStory, getStoryById, reactToStory, getStoriesByTitle, addStoryToFavourites } = require('../../Controllers/story');
+const { writeStory, getStoryById, reactToStory, 
+        getStoriesByTitle, addStoryToFavourites } = require('../../Controllers/story');
+const { getTopStories, getBestStories } = require('../../Controllers/topAndBestStories');
 
 router.route('/write-story')
     .post(isAuthor, catchAsync(writeStory));
@@ -17,13 +19,13 @@ router.route('/:story_id/react-to-story')
 router.route('/:title/get-stories')
     .get(catchAsync(getStoriesByTitle));
 
-// // top stories: popular stories of the week
-// router.route('/:top-stories')
-//     .get(catchAsync(getTopStories));
+// top stories: popular stories of the week
+router.route('/top-stories')
+    .get(catchAsync(getTopStories));
 
-// // best stories: popular stories of all time
-// router.route('/:best-stories')
-//     .get(catchAsync(getBestStories));
+// best stories: popular stories of all time
+router.route('/best-stories')
+    .get(catchAsync(getBestStories));
 
 // Add story to favourites 
 router.route('/story/:story_id/add-to-favourites')
